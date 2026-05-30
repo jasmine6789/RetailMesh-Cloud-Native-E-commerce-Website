@@ -1,0 +1,485 @@
+{
+  "title": "K6 Load Testing Metrics",
+  "tags": [
+    "k6",
+    "load-testing",
+    "performance"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 0,
+  "refresh": "10s",
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(k6_http_reqs_total, service)",
+        "label": "Service",
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "test_type",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(k6_http_reqs_total, test_type)",
+        "label": "Test Type",
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP Request Duration (Average)",
+      "type": "graph",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "histogram_avg(rate(k6_http_req_duration_seconds{service=~\"$service\",test_type=~\"$test_type\"}[1m])) * 1000",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Duration (ms)",
+          "format": "ms"
+        }
+      ],
+      "xaxis": {
+        "mode": "time"
+      },
+      "lines": true,
+      "linewidth": 2,
+      "fill": 1,
+      "fillGradient": 0,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true
+      }
+    },
+    {
+      "id": 2,
+      "title": "HTTP Request Duration (P95)",
+      "type": "graph",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(k6_http_req_duration_seconds{service=~\"$service\",test_type=~\"$test_type\"}[1m])) * 1000",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Duration (ms)",
+          "format": "ms"
+        }
+      ],
+      "xaxis": {
+        "mode": "time"
+      },
+      "lines": true,
+      "linewidth": 2,
+      "fill": 1,
+      "fillGradient": 0,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true
+      }
+    },
+    {
+      "id": 3,
+      "title": "Total HTTP Requests",
+      "type": "graph",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "k6_http_reqs_total{service=~\"$service\",test_type=~\"$test_type\"}",
+          "legendFormat": "{{service}} - {{test_type}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Requests",
+          "format": "short"
+        }
+      ],
+      "xaxis": {
+        "mode": "time"
+      },
+      "bars": true,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true
+      }
+    },
+    {
+      "id": 4,
+      "title": "Failed HTTP Requests",
+      "type": "graph",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum(k6_http_req_failed_rate{service=~\"$service\",test_type=~\"$test_type\",expected_response=\"false\"}) by (service, test_type)",
+          "legendFormat": "{{service}} - {{test_type}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Failed Requests",
+          "format": "short"
+        }
+      ],
+      "xaxis": {
+        "mode": "time"
+      },
+      "bars": true,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true
+      }
+    },
+    {
+      "id": 5,
+      "title": "Virtual Users",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "expr": "k6_vus",
+          "legendFormat": "Virtual Users",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^.*$/"
+        },
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "${__field.labels.service}",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 5,
+                "color": "yellow"
+              },
+              {
+                "value": 10,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Total Iterations",
+      "type": "stat",
+      "gridPos": {
+        "x": 6,
+        "y": 16,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "expr": "k6_iterations_total",
+          "legendFormat": "Total Iterations",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^.*$/"
+        },
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "${__field.labels.service}",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Data Received (Bytes)",
+      "type": "stat",
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "expr": "k6_data_received_total",
+          "legendFormat": "Data Received",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^.*$/"
+        },
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "${__field.labels.service}",
+          "unit": "bytes",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Data Sent (Bytes)",
+      "type": "stat",
+      "gridPos": {
+        "x": 18,
+        "y": 16,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "expr": "k6_data_sent_total",
+          "legendFormat": "Data Sent",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^.*$/"
+        },
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "displayName": "${__field.labels.service}",
+          "unit": "bytes",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Request Rate (per second)",
+      "type": "graph",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(k6_http_reqs_total{service=~\"$service\",test_type=~\"$test_type\"}[1m])) by (service)",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Requests/sec",
+          "format": "reqps"
+        }
+      ],
+      "xaxis": {
+        "mode": "time"
+      },
+      "lines": true,
+      "linewidth": 2,
+      "fill": 1,
+      "fillGradient": 0,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true
+      }
+    },
+    {
+      "id": 10,
+      "title": "Error Rate (%)",
+      "type": "graph",
+      "gridPos": {
+        "x": 12,
+        "y": 20,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "(sum(k6_http_req_failed_rate{service=~\"$service\",test_type=~\"$test_type\",expected_response=\"false\"}) by (service) / sum(k6_http_reqs_total{service=~\"$service\",test_type=~\"$test_type\"}) by (service)) * 100",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Error Rate (%)",
+          "format": "percent"
+        }
+      ],
+      "xaxis": {
+        "mode": "time"
+      },
+      "lines": true,
+      "linewidth": 2,
+      "fill": 1,
+      "fillGradient": 0,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true
+      },
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                5
+              ],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "A",
+                "5m",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "frequency": "60s",
+        "handler": 1,
+        "name": "High Error Rate Alert",
+        "noDataState": "no_data",
+        "notifications": []
+      }
+    }
+  ]
+}

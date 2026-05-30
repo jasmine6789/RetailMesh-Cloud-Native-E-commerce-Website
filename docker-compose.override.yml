@@ -1,0 +1,249 @@
+services:
+  catalogdb:
+    container_name: catalogdb
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin1234
+      - MONGO_INITDB_DATABASE=CatalogDb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok", "--host", "localhost", "--username", "admin", "--password", "admin1234", "--authenticationDatabase", "admin"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+  basketdb:
+    container_name: basketdb
+    restart: always
+    ports:
+      - "6379:6379"
+
+  discountdb:
+    container_name: discountdb
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  orderdb:
+    container_name: orderdb
+    environment:
+      SA_PASSWORD: ${SQL_SA_PASSWORD}
+      ACCEPT_EULA: ${ACCEPT_EULA}
+      MSSQL_PID: Developer
+    restart: always
+    ports:
+      - "1433:1433"
+    volumes:
+      - orderdb-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q 'SQL Server is now ready for client connections' /var/opt/mssql/log/errorlog || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
+
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+
+  pgadmin:
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+    restart: always
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/root/.pgadmin
+
+  portainer:
+    container_name: portainer
+    restart: always
+    ports:
+      - "9080:8000"
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+  catalog.api:
+    container_name: catalog.api
+    environment:
+      - ASPNETCORE_HTTP_PORTS=80
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Otlp__Endpoint=${OTLP_ENDPOINT}
+      - DatabaseSettings__ConnectionString=${MONGODB_URL}
+      - DatabaseSettings__DatabaseName=${MONGO_DB}
+      - DatabaseSettings__CollectionName=Products
+      - DatabaseSettings__BrandsCollection=Brands
+      - DatabaseSettings__TypesCollection=Types
+      - ElasticConfiguration__Uri=${ELASTICSEARCH_URL}
+      - EventBusSettings__HostAddress=${RABBITMQ_URL}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Jwt__ExpiryMinutes=${JWT_EXPIRY_MINUTES}
+      # LocalStack S3 Configuration
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - USE_LOCALSTACK=true
+      - AWS__S3__BucketName=ecommerce-product-images
+      - AWS__S3__Region=us-east-1
+      - AWS__S3__ImagePrefix=products/
+    volumes:
+      - ~/.aws:/root/.aws:ro
+      - ./assets/product-images:/app/images/products:ro
+    depends_on:
+      catalogdb:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    ports:
+      - "8000:80"
+
+  basket.api:
+    container_name: basket.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=80
+      - Otlp__Endpoint=${OTLP_ENDPOINT}
+      - CacheSettings__ConnectionString=${REDIS_URL}
+      - GrpcSettings__DiscountUrl=http://discount.api:8080
+      - EventBusSettings__HostAddress=${RABBITMQ_URL}
+      - ElasticConfiguration__Uri=${ELASTICSEARCH_URL}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Jwt__ExpiryMinutes=${JWT_EXPIRY_MINUTES}
+    depends_on:
+      basketdb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "8001:80"
+
+  discount.api:
+    container_name: discount.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Otlp__Endpoint=${OTLP_ENDPOINT}
+      - DatabaseSettings__ConnectionString=${POSTGRES_URL}
+      - ElasticConfiguration__Uri=${ELASTICSEARCH_URL}
+    depends_on:
+      discountdb:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "8002:8080"
+
+  identity.api:
+    container_name: identity.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=80
+      - ConnectionStrings__IdentityConnectionString=${IDENTITY_CONNECTION_STRING}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Jwt__ExpiryMinutes=${JWT_EXPIRY_MINUTES}
+    depends_on:
+      orderdb:
+        condition: service_healthy
+    ports:
+      - "8004:80"
+
+  ordering.api:
+    container_name: ordering.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=80
+      - Otlp__Endpoint=${OTLP_ENDPOINT}
+      - ConnectionStrings__OrderingConnectionString=${SQLSERVER_URL}
+      - EventBusSettings__HostAddress=${RABBITMQ_URL}
+      - ElasticConfiguration__Uri=${ELASTICSEARCH_URL}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Jwt__ExpiryMinutes=${JWT_EXPIRY_MINUTES}
+    depends_on:
+      orderdb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "8003:80"
+
+  ocelot.apigateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_HTTP_PORTS=80
+      - Otlp__Endpoint=${OTLP_ENDPOINT}
+    depends_on:
+      - catalog.api
+      - basket.api
+      - discount.api
+      - ordering.api
+      - identity.api
+    ports:
+      - "8010:80"
+
+  elasticsearch:
+    container_name: elasticsearch
+    restart: always
+    environment:
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS:--Xms1g -Xmx1g}
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.watcher.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  kibana:
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"

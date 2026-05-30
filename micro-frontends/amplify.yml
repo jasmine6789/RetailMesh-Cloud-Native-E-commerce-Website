@@ -1,0 +1,51 @@
+version: 1
+applications:
+  - appRoot: ecommerce-micro-frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - echo "=== Cleaning old package builds (keep node_modules cache) ==="
+            - rm -rf packages/*/dist
+            - echo "=== Installing dependencies (fast/ci) ==="
+            - npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline
+            - echo "=== Building shared packages ==="
+            - npm run build:packages
+            - echo "=== Ensuring local packages override registry ==="
+            - rm -rf node_modules/@ecommerce-platform
+            - mkdir -p node_modules/@ecommerce-platform
+            - cp -r packages/app-injector node_modules/@ecommerce-platform/app-injector
+            - cp -r packages/auth-provider node_modules/@ecommerce-platform/auth-provider
+            - cp -r packages/shared-layout node_modules/@ecommerce-platform/shared-layout
+            - echo "=== PreBuild phase completed ==="
+        build:
+          commands:
+            - echo "Building all micro-frontend apps for production..."
+            - NODE_OPTIONS=--max_old_space_size=4096 npm run build:prod
+            - echo "Preparing aggregated deployment bundle..."
+            - mkdir -p dist/deploy/remotes
+            - cp -r dist/host/* dist/deploy/
+            - |
+              for remote in dist/*; do
+                name=$(basename "$remote");
+                if [ "$name" != "host" ] && [ "$name" != "deploy" ] && [ -d "$remote" ]; then
+                  echo "Bundling remote: $name";
+                  rm -rf "dist/deploy/remotes/$name";
+                  cp -r "$remote" "dist/deploy/remotes/$name";
+                fi;
+              done
+      artifacts:
+        # Output directory with all apps
+        baseDirectory: dist/deploy
+        files:
+          - '**/*'
+      cache:
+        paths:
+          # Cache node_modules for faster builds
+          # Note: We exclude @ecommerce-platform packages to ensure local packages are always used
+          - node_modules/**/*
+          # Cache Nx cache (but we clean it in build phase for fresh builds)
+          - .nx/cache/**/*
+          # DO NOT cache package build outputs or local packages in node_modules
+          # This ensures we always use the latest local package versions
+          # The preBuild phase will replace @ecommerce-platform packages with local builds
