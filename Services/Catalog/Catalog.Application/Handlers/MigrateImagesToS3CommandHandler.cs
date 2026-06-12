@@ -64,15 +64,19 @@ public class MigrateImagesToS3CommandHandler : IRequestHandler<MigrateImagesToS3
                         continue;
                     }
 
-                    // Check if already migrated (S3 URL)
-                    if (product.ImageFile.Contains("s3.amazonaws.com") ||
-                        product.ImageFile.StartsWith("https://"))
+                    // Check if already migrated (S3 or LocalStack URL)
+                    if (product.ImageFile.Contains("s3.amazonaws.com", StringComparison.OrdinalIgnoreCase) ||
+                        product.ImageFile.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                        product.ImageFile.Contains("127.0.0.1:4566", StringComparison.OrdinalIgnoreCase) ||
+                        product.ImageFile.Contains("localhost:4566", StringComparison.OrdinalIgnoreCase) ||
+                        product.ImageFile.Contains("localstack:4566", StringComparison.OrdinalIgnoreCase) ||
+                        product.ImageFile.Contains("eshopping-localstack:4566", StringComparison.OrdinalIgnoreCase))
                     {
                         detail.Status = "Skipped";
-                        detail.ErrorMessage = "Already using S3 or external URL";
+                        detail.ErrorMessage = "Already using S3 or LocalStack URL";
                         report.SkippedProducts++;
                         report.Details.Add(detail);
-                        _logger.LogInformation("Product {ProductId} already has S3/external URL, skipping", product.Id);
+                        _logger.LogInformation("Product {ProductId} already has S3/LocalStack URL, skipping", product.Id);
                         continue;
                     }
 

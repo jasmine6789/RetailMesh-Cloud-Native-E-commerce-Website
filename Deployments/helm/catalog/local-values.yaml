@@ -2,16 +2,23 @@
 # This file overrides AWS S3 settings to use LocalStack instead of AWS
 
 configmap:
-  AWS__S3__ServiceUrl: "http://localstack:4566"
+  # Browser-facing S3 URLs (via kubectl port-forward to localhost:4566)
+  AWS__S3__ServiceUrl: "http://127.0.0.1:4566"
   USE_LOCALSTACK: "true"
+
+# Mount repo product images for Admin/MigrateImagesToS3 (minikube mount -> /mnt/product-images)
+productImages:
+  enabled: true
+  hostPath: /mnt/product-images
+  mountPath: /app/images/products
 
 env:
   values:
   - name: ASPNETCORE_ENVIRONMENT
     value: Development
   - name: AWS_ACCESS_KEY_ID
-    value: "test"  # LocalStack credentials
+    value: "test"
   - name: AWS_SECRET_ACCESS_KEY
-    value: "test"  # LocalStack credentials
+    value: "test"
   - name: AWS_ENDPOINT_URL
-    value: "http://localstack:4566"  # LocalStack endpoint
+    value: "http://eshopping-localstack:4566"

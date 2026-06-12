@@ -34,7 +34,6 @@ SECURITY.md
 # Deployment and infrastructure (not needed in container)
 .github/
 Deployments/
-Infrastructure/aws/
 scripts/
 wiki/
 docs/
@@ -61,7 +60,6 @@ istio-*/
 # Logs and temp files
 *.log
 *.tmp
-**/.terraform/
 
 # AWS and cloud config
 .aws/

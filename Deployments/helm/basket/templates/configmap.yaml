@@ -14,3 +14,7 @@ data:
   CacheSettings__ConnectionString: eshopping-basketdb:6379
   GrpcSettings__DiscountUrl: http://eshopping-discount-discount-grpc:8080
   ElasticConfiguration__Uri: http://eshopping-elasticsearch:9200
+  Jwt__Secret: {{ .Values.jwt.secret | quote }}
+  Jwt__Issuer: {{ .Values.jwt.issuer | quote }}
+  Jwt__Audience: {{ .Values.jwt.audience | quote }}
+  Jwt__ExpiryMinutes: {{ .Values.jwt.expiryMinutes | quote }}

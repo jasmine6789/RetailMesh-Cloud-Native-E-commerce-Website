@@ -21,6 +21,10 @@ docker build -f Services/Discount/Discount.API/Dockerfile -t eshop/discount.grpc
 echo "Building Ordering API..."
 docker build -f Services/Ordering/Ordering.API/Dockerfile -t eshop/ordering.api:latest .
 
+# Build Identity API
+echo "Building Identity API..."
+docker build -f Services/Identity/Identity.API/Dockerfile -t identityapi:latest .
+
 # Build API Gateway
 echo "Building API Gateway..."
 docker build -f ApiGateways/Ocelot.ApiGateway/Dockerfile -t eshop/ocelot.apigw:latest .

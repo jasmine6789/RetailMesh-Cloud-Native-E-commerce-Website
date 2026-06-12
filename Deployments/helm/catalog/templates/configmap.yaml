@@ -22,3 +22,7 @@ data:
   AWS__S3__ImagePrefix: {{ .Values.configmap.AWS__S3__ImagePrefix | default "products/" }}
   AWS__S3__ServiceUrl: {{ .Values.configmap.AWS__S3__ServiceUrl | default "" | quote }}
   USE_LOCALSTACK: {{ .Values.configmap.USE_LOCALSTACK | default "false" | quote }}
+  Jwt__Secret: {{ .Values.jwt.secret | quote }}
+  Jwt__Issuer: {{ .Values.jwt.issuer | quote }}
+  Jwt__Audience: {{ .Values.jwt.audience | quote }}
+  Jwt__ExpiryMinutes: {{ .Values.jwt.expiryMinutes | quote }}

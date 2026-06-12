@@ -443,9 +443,3 @@ repomix-output.md
 
 # K6 load testing binary (should be installed locally)
 /k6
-
-# Terraform
-.terraform/
-.terraform.lock.hcl
-*.tfvars
-*.tfstate*

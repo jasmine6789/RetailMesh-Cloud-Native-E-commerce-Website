@@ -15,10 +15,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:9003/api/v1/Order/slowey",
+					"raw": "localhost:9003/api/v1/Order/demo@retailmesh.com",
 					"host": ["localhost"],
 					"port": "9003",
-					"path": ["api", "v1", "Order", "slowey"]
+					"path": ["api", "v1", "Order", "demo@retailmesh.com"]
 				}
 			},
 			"response": []
@@ -33,7 +33,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"userName\": \"slowey\",\n  \"totalPrice\": 1900,\n  \"firstName\": \"Slowey\",\n  \"lastName\": \"Truong\",\n  \"emailAddress\": \"slowey@eshop.net\",\n  \"addressLine\": \"Bangalore\",\n  \"country\": \"India\",\n  \"state\": \"Karnataka\",\n  \"zipCode\": \"560001\",\n  \"cardName\": \"Visa\",\n  \"cardNumber\": \"1234567890123456\",\n  \"expiration\": \"12/25\",\n  \"cvv\": \"123\",\n  \"paymentMethod\": 1\n}",
+					"raw": "{\n  \"userName\": \"demo@retailmesh.com\",\n  \"totalPrice\": 1900,\n  \"firstName\": \"Demo\",\n  \"lastName\": \"Customer\",\n  \"emailAddress\": \"demo@retailmesh.com\",\n  \"addressLine\": \"Bangalore\",\n  \"country\": \"India\",\n  \"state\": \"Karnataka\",\n  \"zipCode\": \"560001\",\n  \"cardName\": \"Visa\",\n  \"cardNumber\": \"1234567890123456\",\n  \"expiration\": \"12/25\",\n  \"cvv\": \"123\",\n  \"paymentMethod\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -56,7 +56,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"userName\": \"slowey\",\n  \"totalPrice\": 1900,\n  \"firstName\": \"Slowey\",\n  \"lastName\": \"Truong\",\n  \"emailAddress\": \"slowey@eshop.net\",\n  \"addressLine\": \"Bangalore\",\n  \"country\": \"India\",\n  \"state\": \"Karnataka\",\n  \"zipCode\": \"560002\",\n  \"cardName\": \"Visa\",\n  \"cardNumber\": \"1234567890123456\",\n  \"expiration\": \"12/25\",\n  \"cvv\": \"123\",\n  \"paymentMethod\": 1\n}",
+					"raw": "{\n  \"userName\": \"demo@retailmesh.com\",\n  \"totalPrice\": 1900,\n  \"firstName\": \"Demo\",\n  \"lastName\": \"Customer\",\n  \"emailAddress\": \"demo@retailmesh.com\",\n  \"addressLine\": \"Bangalore\",\n  \"country\": \"India\",\n  \"state\": \"Karnataka\",\n  \"zipCode\": \"560002\",\n  \"cardName\": \"Visa\",\n  \"cardNumber\": \"1234567890123456\",\n  \"expiration\": \"12/25\",\n  \"cvv\": \"123\",\n  \"paymentMethod\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"

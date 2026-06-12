@@ -198,11 +198,11 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:9010/Basket/GetBasket/slowey",
+					"raw": "http://localhost:9010/Basket/GetBasket/demo@retailmesh.com",
 					"protocol": "http",
 					"host": ["localhost"],
 					"port": "9010",
-					"path": ["Basket", "GetBasket", "slowey"]
+					"path": ["Basket", "GetBasket", "demo@retailmesh.com"]
 				}
 			},
 			"response": []
@@ -213,11 +213,11 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:9010/Order/slowey",
+					"raw": "http://localhost:9010/Order/demo@retailmesh.com",
 					"protocol": "http",
 					"host": ["localhost"],
 					"port": "9010",
-					"path": ["Order", "slowey"]
+					"path": ["Order", "demo@retailmesh.com"]
 				}
 			},
 			"response": []
@@ -239,7 +239,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"userName\": \"slowey\",\n    \"items\": [\n        {\n            \"quantity\": 3,\n            \"imageFile\": \"images/products/adidas_shoe-1.png\",\n            \"price\": 3500.0,\n            \"productId\": \"602d2149e773f2a3990b47f5\",\n            \"productName\": \"Adidas Quick Force Indoor Badminton Shoes\"\n        }\n    ],\n    \"totalPrice\": 3500.0\n}",
+					"raw": "{\n  \"userName\": \"demo@retailmesh.com\",\n    \"items\": [\n        {\n            \"quantity\": 3,\n            \"imageFile\": \"images/products/adidas_shoe-1.png\",\n            \"price\": 3500.0,\n            \"productId\": \"602d2149e773f2a3990b47f5\",\n            \"productName\": \"Adidas Quick Force Indoor Badminton Shoes\"\n        }\n    ],\n    \"totalPrice\": 3500.0\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -276,7 +276,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"userName\": \"slowey\",\n  \"items\": [\n    {\n      \"quantity\": 5,\n      \"color\": \"red\",\n      \"price\": 700,\n      \"productId\": \"602d2149e773f2a3990b47f5\",\n      \"productName\": \"IPhone X\"\n    }\n  ]\n}",
+					"raw": "{\n  \"userName\": \"demo@retailmesh.com\",\n  \"items\": [\n    {\n      \"quantity\": 5,\n      \"color\": \"red\",\n      \"price\": 700,\n      \"productId\": \"602d2149e773f2a3990b47f5\",\n      \"productName\": \"IPhone X\"\n    }\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -284,11 +284,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:9010/Basket/GetBasket/slowey",
+					"raw": "http://localhost:9010/Basket/GetBasket/demo@retailmesh.com",
 					"protocol": "http",
 					"host": ["localhost"],
 					"port": "9010",
-					"path": ["Basket", "GetBasket", "slowey"]
+					"path": ["Basket", "GetBasket", "demo@retailmesh.com"]
 				}
 			},
 			"response": []
@@ -300,7 +300,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"userName\": \"slowey\",\n  \"items\": [\n    {\n      \"quantity\": 5,\n      \"color\": \"red\",\n      \"price\": 700,\n      \"productId\": \"602d2149e773f2a3990b47f5\",\n      \"productName\": \"IPhone X\"\n    }\n  ]\n}",
+					"raw": "{\n  \"userName\": \"demo@retailmesh.com\",\n  \"items\": [\n    {\n      \"quantity\": 5,\n      \"color\": \"red\",\n      \"price\": 700,\n      \"productId\": \"602d2149e773f2a3990b47f5\",\n      \"productName\": \"IPhone X\"\n    }\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -308,11 +308,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:9010/Basket/DeleteBasket/slowey",
+					"raw": "http://localhost:9010/Basket/DeleteBasket/demo@retailmesh.com",
 					"protocol": "http",
 					"host": ["localhost"],
 					"port": "9010",
-					"path": ["Basket", "DeleteBasket", "slowey"]
+					"path": ["Basket", "DeleteBasket", "demo@retailmesh.com"]
 				}
 			},
 			"response": []
@@ -324,7 +324,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"userName\": \"slowey\",\n  \"totalPrice\": 0,\n  \"firstName\": \"Slowey\",\n  \"lastName\": \"Truong\",\n  \"emailAddress\": \"slowey@eshop.net\",\n  \"addressLine\": \"Bangalore\",\n  \"country\": \"India\",\n  \"state\": \"KA\",\n  \"zipCode\": \"560001\",\n  \"cardName\": \"Visa\",\n  \"cardNumber\": \"1234567890123456\",\n  \"expiration\": \"12/25\",\n  \"cvv\": \"123\",\n  \"paymentMethod\": 1\n}",
+					"raw": "{\n  \"userName\": \"demo@retailmesh.com\",\n  \"totalPrice\": 0,\n  \"firstName\": \"Demo\",\n  \"lastName\": \"Customer\",\n  \"emailAddress\": \"demo@retailmesh.com\",\n  \"addressLine\": \"Bangalore\",\n  \"country\": \"India\",\n  \"state\": \"KA\",\n  \"zipCode\": \"560001\",\n  \"cardName\": \"Visa\",\n  \"cardNumber\": \"1234567890123456\",\n  \"expiration\": \"12/25\",\n  \"cvv\": \"123\",\n  \"paymentMethod\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"

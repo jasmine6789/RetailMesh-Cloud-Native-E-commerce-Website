@@ -1,0 +1,8 @@
+# Shared JWT settings for all API Helm releases (match .env.example / Docker Compose).
+# Usage: helm upgrade --install ... -f jwt-values.yaml
+
+jwt:
+  secret: "dev-super-secret-jwt-key-change-in-production-min-32-chars"
+  issuer: "http://localhost:8010"
+  audience: "ecommerce-api"
+  expiryMinutes: "60"

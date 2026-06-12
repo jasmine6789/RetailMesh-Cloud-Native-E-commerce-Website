@@ -15,7 +15,7 @@ function Install-Chart  {
 Write-Host "Installation using Helm started" -ForegroundColor Green
 
 $infras = ("basketdb", "catalogdb", "discountdb", "elasticsearch", "kibana", "orderdb", "rabbitmq")
-$apis = ("basket","catalog", "ordering", "discount")
+$apis = ("identity", "catalog", "basket", "discount", "ordering")
 $gateways = ("ocelotapigw")
 
 

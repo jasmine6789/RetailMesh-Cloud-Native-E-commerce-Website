@@ -1,19 +1,19 @@
-{{- $name := include "catalog.fullname" . -}}
+{{- $name := include "identity.fullname" . -}}
 {{- $cfgname := printf "%s-%s" "cfg" $name -}}
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "catalog.fullname" . }}
+  name: {{ include "identity.fullname" . }}
   labels:
-    {{- include "catalog.labels" . | nindent 4 }}
+    {{- include "identity.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "catalog.selectorLabels" . | nindent 6 }}
+      {{- include "identity.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -21,13 +21,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "catalog.selectorLabels" . | nindent 8 }}
+        {{- include "identity.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "catalog.serviceAccountName" . }}
+      serviceAccountName: {{ include "identity.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -41,36 +41,35 @@ spec:
               containerPort: 80
               protocol: TCP
           env:
-          {{- if .Values.env.values -}}
+          {{- if .Values.env.values }}
           {{- range .Values.env.values }}
             - name: {{ .name }}
               value: {{ .value | quote }}
-          {{- end -}}
-          {{- end -}}
-          {{- if .Values.env.configmap -}}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.env.configmap }}
           {{- range .Values.env.configmap }}
             - name: {{ .name }}
               valueFrom:
                 configMapKeyRef:
                   name: {{ $cfgname }}
                   key: {{ .key }}
-          {{- end -}}
-          {{- end }}                                 
+          {{- end }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.productImages.enabled }}
-          volumeMounts:
-            - name: product-images
-              mountPath: {{ .Values.productImages.mountPath }}
-              readOnly: true
-          {{- end }}
-      {{- if .Values.productImages.enabled }}
-      volumes:
-        - name: product-images
-          hostPath:
-            path: {{ .Values.productImages.hostPath }}
-            type: Directory
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

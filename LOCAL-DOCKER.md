@@ -1,7 +1,5 @@
 # Local Docker Full-Stack (Fresh Clone)
 
-For Git commit rules (avoid **cursoragent** on GitHub), see [docs/GIT-COMMITS.md](docs/GIT-COMMITS.md).
-
 This guide runs the backend microservices + infrastructure stack with Docker/Docker Compose, and then starts the React microfrontends (Nx) directly on the host.
 
 Primary assumption: you are using `docker-compose.yml` + `docker-compose.override.yml` (both are required).

@@ -122,6 +122,22 @@ npm start
 
 Open [http://localhost:4200](http://localhost:4200). Full Docker steps: [LOCAL-DOCKER.md](LOCAL-DOCKER.md).
 
+### Optional: Kubernetes (Minikube)
+
+For a Helm-based cluster with the same Docker images:
+
+```bash
+bash scripts/deploy/deploy.sh
+```
+
+This deploys infrastructure, **Identity.API**, LocalStack, and APIs; uploads product images to LocalStack; runs Catalog image migration; and port-forwards the gateway (`8010`) and LocalStack (`4566`). Start the storefront separately:
+
+```bash
+cd micro-frontends && npm run setup && npm start
+```
+
+Full checklist: [kubernetes/LOCAL-K8S.md](kubernetes/LOCAL-K8S.md).
+
 ## Local URLs
 
 | Service | URL |
@@ -167,9 +183,10 @@ Configure JWT and database settings in `.env` (`JWT_*`, `IDENTITY_CONNECTION_STR
 
 ## More documentation
 
-- [LOCAL-DOCKER.md](LOCAL-DOCKER.md) — primary local workflow
-- [diagrams/](diagrams/README.md) — 8 core Eraser.io diagrams (+ [archive](diagrams/archive/) for supplementary)
-- [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md) — optional Minikube / AWS deployments
+- [LOCAL-DOCKER.md](LOCAL-DOCKER.md) — primary local workflow (Docker Compose + micro-frontends)
+- [kubernetes/LOCAL-K8S.md](kubernetes/LOCAL-K8S.md) — optional Minikube + Helm checklist
+- [diagrams/](diagrams/README.md) — 8 core Eraser.io diagrams
+- [scripts/README.md](scripts/README.md) — deploy, LocalStack, and K8s helpers
 - [SECURITY.md](SECURITY.md) — reporting vulnerabilities
 
 ## License
