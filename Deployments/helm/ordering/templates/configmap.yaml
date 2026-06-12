@@ -13,3 +13,7 @@ data:
   ConnectionStrings__OrderingConnectionString: Server=eshopping-orderdb;Database=OrderDb;User Id=sa;Password=SqlPassword123;TrustServerCertificate=True;Encrypt=Optional
   ElasticConfiguration__Uri: http://eshopping-elasticsearch:9200
   EventBusSettings__HostAddress: amqp://guest:guest@eshopping-rabbitmq:5672
+  Jwt__Secret: {{ .Values.jwt.secret | quote }}
+  Jwt__Issuer: {{ .Values.jwt.issuer | quote }}
+  Jwt__Audience: {{ .Values.jwt.audience | quote }}
+  Jwt__ExpiryMinutes: {{ .Values.jwt.expiryMinutes | quote }}

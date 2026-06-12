@@ -49,9 +49,10 @@ done
 # Trigger migration via the existing Admin endpoint
 echo ""
 echo "📤 Triggering image migration to S3..."
-echo "   Calling: POST ${CATALOG_API_URL}/Admin/MigrateImagesToS3"
+MIGRATE_URL="${CATALOG_API_URL}/api/v1/Admin/MigrateImagesToS3"
+echo "   Calling: POST ${MIGRATE_URL}"
 
-MIGRATION_RESPONSE=$(curl -s -X POST "${CATALOG_API_URL}/Admin/MigrateImagesToS3" \
+MIGRATION_RESPONSE=$(curl -s -X POST "${MIGRATE_URL}" \
     -H "Content-Type: application/json" \
     -w "\nHTTP_STATUS:%{http_code}")
 
@@ -74,9 +75,9 @@ echo ""
 echo "🔍 Verifying migration..."
 PRODUCTS_RESPONSE=$(curl -s "${CATALOG_API_URL}/api/v1/Catalog?pageSize=5" 2>/dev/null)
 
-if echo "$PRODUCTS_RESPONSE" | grep -q "localstack:4566"; then
+if echo "$PRODUCTS_RESPONSE" | grep -qE "(127\.0\.0\.1:4566|localhost:4566|localstack:4566|eshopping-localstack:4566)"; then
     echo "✅ Products now reference LocalStack S3 URLs!"
-    S3_COUNT=$(echo "$PRODUCTS_RESPONSE" | grep -o "localstack:4566" | wc -l)
+    S3_COUNT=$(echo "$PRODUCTS_RESPONSE" | grep -oE "(127\.0\.0\.1:4566|localhost:4566|localstack:4566|eshopping-localstack:4566)" | wc -l)
     echo "   Found $S3_COUNT LocalStack S3 references in sample products"
 elif echo "$PRODUCTS_RESPONSE" | grep -q "s3.amazonaws.com"; then
     echo "⚠️  Products still reference AWS S3 URLs"

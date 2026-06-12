@@ -1,6 +1,6 @@
 # Architecture Diagrams — RetailMesh
 
-Eraser.io diagrams that extend the **mermaid** diagrams in [README.md](../README.md) and deployment notes in [Deployments/README.md](../Deployments/README.md).
+Eraser.io diagrams that extend the **mermaid** diagrams in [README.md](../README.md).
 
 ## Viewing
 
@@ -18,7 +18,3 @@ Open `.eraserdiagram` files in the [Eraser.io editor](https://app.eraser.io).
 | [kubernetes-topology.eraserdiagram](kubernetes-topology.eraserdiagram) | K8s deployment layout |
 | [cicd-pipeline-flow.eraserdiagram](cicd-pipeline-flow.eraserdiagram) | CI/CD stages |
 | [observability-telemetry-flow.eraserdiagram](observability-telemetry-flow.eraserdiagram) | Metrics, logs, traces |
-
-## Archive
-
-Supplementary or overlapping diagrams (clean-architecture variants, checkout phase splits, appendix traces, etc.) live in [archive/](archive/). They are kept for reference but are not required for day-to-day work.

@@ -140,23 +140,23 @@ public class OrderContextSeed
         {
             new()
             {
-                UserName = "slowey",
-                FirstName = "phuc",
-                LastName = "truong",
-                EmailAddress = "user@example.com",
-                AddressLine = "Ho Chi Minh city",
-                Country = "Vietnam",
+                UserName = "demo@retailmesh.com",
+                FirstName = "Demo",
+                LastName = "Customer",
+                EmailAddress = "demo@retailmesh.com",
+                AddressLine = "123 Main Street",
+                Country = "United States",
                 TotalPrice = 750,
-                State = "Ho Chi Minh",
-                ZipCode = "700000",
+                State = "CA",
+                ZipCode = "90210",
 
                 CardName = "Visa",
                 CardNumber = "1234567890",
-                CreatedBy = "slowey",
+                CreatedBy = "demo@retailmesh.com",
                 Expiration = "12/25",
                 Cvv = "123",
                 PaymentMethod = 1,
-                LastModifiedBy = "slowey",
+                LastModifiedBy = "demo@retailmesh.com",
                 LastModifiedDate = new DateTime()
             }
         };

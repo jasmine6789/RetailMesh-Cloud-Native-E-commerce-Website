@@ -1,0 +1,17 @@
+{{- $name := include "identity.fullname" . -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "cfg-{{ $name }}"
+  labels:
+    app: {{ template "identity.name" . }}
+    chart: {{ template "identity.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  ConnectionStrings__IdentityConnectionString: {{ .Values.configmap.ConnectionStrings__IdentityConnectionString | quote }}
+  Jwt__Secret: {{ .Values.jwt.secret | quote }}
+  Jwt__Issuer: {{ .Values.jwt.issuer | quote }}
+  Jwt__Audience: {{ .Values.jwt.audience | quote }}
+  Jwt__ExpiryMinutes: {{ .Values.jwt.expiryMinutes | quote }}

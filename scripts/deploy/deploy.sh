@@ -5,6 +5,9 @@
 
 set -e  # Exit on any error
 
+DEPLOY_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$DEPLOY_SCRIPT_DIR/../.." && pwd)"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -159,6 +162,9 @@ build_images() {
     
     log_info "Building Ordering API..."
     docker build -t orderingapi:latest -f Services/Ordering/Ordering.API/Dockerfile .
+
+    log_info "Building Identity API..."
+    docker build -t identityapi:latest -f Services/Identity/Identity.API/Dockerfile .
     
     log_info "Building API Gateway..."
     docker build -t ocelotapigateway:latest -f ApiGateways/Ocelot.ApiGateway/Dockerfile .
@@ -307,6 +313,32 @@ wait_for_pods() {
     log_success "Infrastructure pods are ready (or starting)"
 }
 
+# Mount host product images into Minikube for Catalog image migration
+mount_product_images() {
+    if [ "$DEPLOYMENT_MODE" = "skip" ]; then
+        return 0
+    fi
+
+    local images_dir="${REPO_ROOT}/assets/product-images"
+    if [ ! -d "$images_dir" ]; then
+        log_warning "Product images directory not found: $images_dir"
+        return 0
+    fi
+
+    if minikube ssh -- "test -f /mnt/product-images/.gitkeep || ls /mnt/product-images 2>/dev/null | head -1" 2>/dev/null | grep -q .; then
+        log_info "Product images already available in Minikube at /mnt/product-images"
+        return 0
+    fi
+
+    log_info "Mounting product images into Minikube (runs in background)..."
+    pkill -f "minikube mount.*product-images" 2>/dev/null || true
+    sleep 1
+    minikube mount "${images_dir}:/mnt/product-images" > /dev/null 2>&1 &
+    sleep 5
+
+    log_success "Product images mount started at /mnt/product-images"
+}
+
 # Function to deploy API services
 deploy_apis() {
     if [ "$DEPLOYMENT_MODE" = "skip" ]; then
@@ -323,14 +355,22 @@ deploy_apis() {
         HELM_CMD="upgrade --install"
     fi
     
-    # Install microservices with increased timeout
-    # Catalog API - use local values file to override AWS defaults for LocalStack
-    helm $HELM_CMD eshopping-catalog ./catalog --namespace default --timeout 600s \
-        -f ./catalog/local-values.yaml
+    JWT_VALUES="-f ./jwt-values.yaml"
 
-    helm $HELM_CMD eshopping-basket ./basket --namespace default --timeout 600s
+    log_info "Waiting for SQL Server (orderdb) before Identity.API..."
+    kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=eshopping-orderdb \
+        -n default --timeout=600s || log_warning "orderdb may need more time"
+
+    # Identity.API — required for /auth/* via Ocelot (eshopping-identity service)
+    helm $HELM_CMD eshopping-identity ./identity --namespace default --timeout 600s $JWT_VALUES
+
+    # Catalog API — LocalStack overrides for in-cluster S3
+    helm $HELM_CMD eshopping-catalog ./catalog --namespace default --timeout 600s \
+        -f ./catalog/local-values.yaml $JWT_VALUES
+
+    helm $HELM_CMD eshopping-basket ./basket --namespace default --timeout 600s $JWT_VALUES
     helm $HELM_CMD eshopping-discount ./discount --namespace default --timeout 600s
-    helm $HELM_CMD eshopping-ordering ./ordering --namespace default --timeout 600s
+    helm $HELM_CMD eshopping-ordering ./ordering --namespace default --timeout 600s $JWT_VALUES
     helm $HELM_CMD eshopping-gateway ./ocelotapigw --namespace default --timeout 600s
     
     cd ../..
@@ -338,57 +378,47 @@ deploy_apis() {
     log_success "API microservices deployed"
 }
 
-# Function to migrate images to S3
+# Function to migrate images to S3 (upload via Catalog Admin API; mirrors Docker step 2)
 migrate_images_to_s3() {
-    log_info "Migrating product images to LocalStack S3..."
-    log_warning "Note: Catalog API cold start can take 2-3 minutes. Skipping automatic migration."
-    log_info "You can manually run migration later using:"
-    log_info "  bash scripts/migrate-images-to-localstack.sh"
+    if [ "$DEPLOYMENT_MODE" = "skip" ]; then
+        log_info "Skipping product image migration (using existing)"
+        return 0
+    fi
 
-    log_success "Deployment complete - manual migration available"
-    return 0
+    log_info "Migrating product images to LocalStack S3 (Catalog cold start may take 2-3 minutes)..."
 
-    # DISABLED: Automatic migration during deployment
-    # The Catalog API takes too long to cold start (2+ minutes)
-    # Run migration manually after deployment when API is warmed up
-    #
-    # # Wait for catalog service to be ready
-    # log_info "Waiting for Catalog service..."
-    # kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=eshopping-catalog \
-    #     -n default --timeout=300s || log_warning "Catalog pod may not be ready"
-    #
-    # # Port-forward to catalog and localstack
-    # log_info "Setting up port-forwards for migration..."
-    #
-    # # Clean up any existing port-forwards
-    # pkill -f "port-forward svc/eshopping-catalog" 2>/dev/null || true
-    # pkill -f "port-forward svc/localstack" 2>/dev/null || true
-    # sleep 2
-    #
-    # # Start fresh port-forwards
-    # kubectl port-forward svc/eshopping-catalog 8000:80 -n default > /dev/null 2>&1 &
-    # CATALOG_PF_PID=$!
-    # kubectl port-forward svc/localstack 4566:4566 -n default > /dev/null 2>&1 &
-    # LOCALSTACK_PF_PID=$!
-    # sleep 10
-    #
-    # # Verify port-forwards are working
-    # if ! curl -s http://localhost:4566/_localstack/health > /dev/null 2>&1; then
-    #     log_warning "Port-forward to LocalStack not ready, waiting longer..."
-    #     sleep 5
-    # fi
-    #
-    # # Run migration script
-    # if [ -f "scripts/migrate-images-to-localstack.sh" ]; then
-    #     bash scripts/migrate-images-to-localstack.sh http://localhost:8000 http://localhost:4566
-    # else
-    #     log_warning "Migration script not found, products may still have local image paths"
-    # fi
-    #
-    # # Clean up port-forwards
-    # kill $CATALOG_PF_PID $LOCALSTACK_PF_PID 2>/dev/null || true
-    #
-    # log_success "Product images migrated to LocalStack S3"
+    log_info "Waiting for Catalog service..."
+    kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=eshopping-catalog \
+        -n default --timeout=300s || log_warning "Catalog pod may not be ready"
+
+    log_info "Setting up port-forwards for migration..."
+    pkill -f "port-forward svc/eshopping-catalog 8000:80" 2>/dev/null || true
+    pkill -f "port-forward svc/eshopping-localstack 4566:4566" 2>/dev/null || true
+    sleep 2
+
+    kubectl port-forward svc/eshopping-catalog 8000:80 -n default > /dev/null 2>&1 &
+    CATALOG_PF_PID=$!
+    kubectl port-forward svc/eshopping-localstack 4566:4566 -n default > /dev/null 2>&1 &
+    LOCALSTACK_PF_PID=$!
+    sleep 10
+
+    if ! curl -s http://localhost:4566/_localstack/health > /dev/null 2>&1; then
+        log_warning "Port-forward to LocalStack not ready, waiting longer..."
+        sleep 5
+    fi
+
+    if [ -f "${REPO_ROOT}/scripts/migrate-images-to-localstack.sh" ]; then
+        if bash "${REPO_ROOT}/scripts/migrate-images-to-localstack.sh" http://localhost:8000 http://localhost:4566; then
+            log_success "Product images migrated to LocalStack S3"
+        else
+            log_warning "Image migration failed or timed out"
+            log_info "Retry manually: bash scripts/migrate-images-to-localstack.sh http://localhost:8000 http://localhost:4566"
+        fi
+    else
+        log_warning "Migration script not found, products may still have local image paths"
+    fi
+
+    kill $CATALOG_PF_PID $LOCALSTACK_PF_PID 2>/dev/null || true
 }
 
 # Function to deploy monitoring stack
@@ -469,35 +499,20 @@ deploy_monitoring() {
     log_success "Monitoring stack deployed"
 }
 
-# Function to configure Angular client
+# Function to configure React micro-frontends (Nx host + remotes)
 configure_frontend() {
-    log_info "Configuring Angular frontend..."
-    
-    cd client
-    
-    # Update API endpoints to use localhost:8010
-    log_info "Updating API endpoints..."
-    
-    # Update store service
-    sed -i.bak 's|baseUrl = .*|baseUrl = '\''http://localhost:8010/'\'';|g' src/app/store/store.service.ts
-    
-    # Update discount service
-    sed -i.bak 's|private baseUrl = .*|private baseUrl = '\''http://localhost:8010/'\'';|g' src/app/shared/services/discount.service.ts
-    
-    # Update basket service
-    sed -i.bak 's|baseUrl = .*|baseUrl = '\''http://localhost:8010'\'';|g' src/app/basket/basket.service.ts
-    sed -i.bak 's|http://.*:31823/api/v2/Basket/Checkout|http://localhost:8010/api/v2/Basket/Checkout|g' src/app/basket/basket.service.ts
-    
-    # Update constants
-    sed -i.bak 's|public static apiRoot = .*|public static apiRoot = '\''http://localhost:8010'\'';|g' src/app/account/constants.ts
-    
-    # Install dependencies
-    log_info "Installing npm dependencies..."
-    npm install --legacy-peer-deps
-    
-    cd ..
-    
-    log_success "Angular frontend configured"
+    log_info "Configuring micro-frontends (API gateway: http://localhost:8010)..."
+
+    cd "${REPO_ROOT}/micro-frontends"
+
+    if [ ! -d node_modules ]; then
+        log_info "Installing npm dependencies (first run may take a few minutes)..."
+        npm run setup
+    fi
+
+    cd "${REPO_ROOT}"
+
+    log_success "Micro-frontends configured"
 }
 
 # Function to setup port forwards
@@ -511,6 +526,9 @@ setup_port_forwards() {
     # Core services
     log_info "Starting API Gateway port-forward..."
     kubectl port-forward svc/eshopping-gateway-ocelotapigw 8010:80 -n default > /dev/null 2>&1 &
+
+    log_info "Starting LocalStack port-forward (product images)..."
+    kubectl port-forward svc/eshopping-localstack 4566:4566 -n default > /dev/null 2>&1 &
     
     # Monitoring services
     log_info "Starting monitoring port-forwards..."
@@ -532,18 +550,16 @@ setup_port_forwards() {
     log_success "Port forwards configured"
 }
 
-# Function to start Angular dev server
+# Function to start Nx micro-frontend dev servers
 start_frontend() {
-    log_info "Starting Angular development server..."
-    
-    cd client
-    
-    # Start Angular in background
+    log_info "Starting micro-frontend dev servers (host :4200)..."
+
+    cd "${REPO_ROOT}/micro-frontends"
+    export NX_API_BASE_URL=http://localhost:8010
     npm start > /dev/null 2>&1 &
-    
-    cd ..
-    
-    log_success "Angular development server started"
+    cd "${REPO_ROOT}"
+
+    log_success "Micro-frontends started at http://localhost:4200"
 }
 
 # Function to verify deployment
@@ -590,7 +606,7 @@ display_access_info() {
     echo "🎉 ==============================================="
     echo ""
     echo "🌐 FRONTEND APPLICATION:"
-    echo "   Angular Client: http://localhost:4200"
+    echo "   Micro-frontends (host): http://localhost:4200"
     echo ""
     echo "🔗 API GATEWAY:"
     echo "   API Gateway: http://localhost:8010"
@@ -610,11 +626,12 @@ display_access_info() {
     echo "   Management UI: http://localhost:15672"
     echo "   Credentials: guest/guest"
     echo ""
-    echo "☁️  LOCALSTACK (LOCAL S3):"
+    echo "☁️  LOCALSTACK (PRODUCT IMAGES):"
     echo "   Health Check: http://localhost:4566/_localstack/health"
     echo "   S3 Bucket: ecommerce-product-images"
-    echo "   S3 Endpoint: http://localhost:4566"
+    echo "   Image base URL: http://127.0.0.1:4566/ecommerce-product-images/products/"
     echo "   Verify: bash scripts/verify-localstack.sh"
+    echo "   Re-run migration: bash scripts/migrate-images-to-localstack.sh http://localhost:8000 http://localhost:4566"
     echo ""
     echo "📚 ADDITIONAL COMMANDS:"
     echo "   Check pods: kubectl get pods --all-namespaces"
@@ -646,6 +663,8 @@ main() {
     echo "🚀 Starting Cloud-Native E-Commerce Platform Deployment..."
     echo ""
 
+    cd "$REPO_ROOT"
+
     check_prerequisites
     check_existing_deployments
     start_minikube
@@ -654,6 +673,7 @@ main() {
     deploy_infrastructure
     deploy_localstack
     wait_for_pods
+    mount_product_images
     deploy_apis
     migrate_images_to_s3
     deploy_monitoring

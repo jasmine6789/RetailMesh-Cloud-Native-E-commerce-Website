@@ -52,7 +52,7 @@ service:
     service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout-seconds: "5"
     service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "2"
     service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "2"
-    # NOTE: Certificate ARN is automatically managed by deploy-aws.sh
+    # NOTE: Set certificate ARN when terminating TLS at the ingress/load balancer
     # The script will:
     #   1. Check for existing "ecommerce" certificates in the account
     #   2. Create a self-signed certificate if none exists

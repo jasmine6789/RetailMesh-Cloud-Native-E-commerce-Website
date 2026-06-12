@@ -80,6 +80,12 @@ tolerations: []
 
 affinity: {}
 
+jwt:
+  secret: "dev-super-secret-jwt-key-change-in-production-min-32-chars"
+  issuer: "http://localhost:8010"
+  audience: "ecommerce-api"
+  expiryMinutes: "60"
+
 env:
   values:
   - name: ASPNETCORE_ENVIRONMENT
@@ -92,4 +98,11 @@ env:
       key: EventBusSettings__HostAddress
     - name: ElasticConfiguration__Uri
       key: ElasticConfiguration__Uri
-        
+    - name: Jwt__Secret
+      key: Jwt__Secret
+    - name: Jwt__Issuer
+      key: Jwt__Issuer
+    - name: Jwt__Audience
+      key: Jwt__Audience
+    - name: Jwt__ExpiryMinutes
+      key: Jwt__ExpiryMinutes

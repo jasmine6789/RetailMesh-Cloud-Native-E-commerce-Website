@@ -61,7 +61,7 @@ main() {
     local infras=("basketdb" "catalogdb" "discountdb" "elasticsearch" "kibana" "orderdb" "rabbitmq")
 
     # API services
-    local apis=("basket" "catalog" "ordering" "discount")
+    local apis=("identity" "catalog" "basket" "discount" "ordering")
 
     # Gateway
     local gateways=("ocelotapigw")

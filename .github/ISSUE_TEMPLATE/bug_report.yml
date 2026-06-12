@@ -149,13 +149,4 @@ body:
       description: Add any other context about the problem here
       placeholder: Any additional information that might be helpful...
     validations:
-      required: false
-
-  - type: checkboxes
-    id: contribution
-    attributes:
-      label: Contribution
-      description: Would you be willing to contribute a fix?
-      options:
-        - label: I would be willing to submit a PR to fix this issue
-          required: false 
+      required: false 

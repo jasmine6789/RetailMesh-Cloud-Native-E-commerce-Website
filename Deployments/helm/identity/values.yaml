@@ -1,0 +1,69 @@
+replicaCount: 1
+
+image:
+  registry: ""
+  repository: identityapi
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  sidecar.istio.io/inject: "false"
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+jwt:
+  secret: "dev-super-secret-jwt-key-change-in-production-min-32-chars"
+  issuer: "http://localhost:8010"
+  audience: "ecommerce-api"
+  expiryMinutes: "60"
+
+configmap:
+  ConnectionStrings__IdentityConnectionString: "Server=eshopping-orderdb;Database=IdentityDb;User Id=sa;Password=SqlPassword123;TrustServerCertificate=True;Encrypt=Optional"
+
+env:
+  values:
+    - name: ASPNETCORE_ENVIRONMENT
+      value: Development
+  configmap:
+    - name: ConnectionStrings__IdentityConnectionString
+      key: ConnectionStrings__IdentityConnectionString
+    - name: Jwt__Secret
+      key: Jwt__Secret
+    - name: Jwt__Issuer
+      key: Jwt__Issuer
+    - name: Jwt__Audience
+      key: Jwt__Audience
+    - name: Jwt__ExpiryMinutes
+      key: Jwt__ExpiryMinutes
