@@ -75,7 +75,7 @@ jobs:
         with:
           context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -89,7 +89,11 @@ jobs:
       - name: Check if images were pushed
         id: push-check
         run: |
-          echo "pushed=true" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "pushed=false" >> $GITHUB_OUTPUT
+          else
+            echo "pushed=true" >> $GITHUB_OUTPUT
+          fi
 
   security-scan:
     runs-on: ubuntu-latest
