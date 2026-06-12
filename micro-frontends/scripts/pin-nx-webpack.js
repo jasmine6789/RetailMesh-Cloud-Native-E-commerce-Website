@@ -1,6 +1,6 @@
 /**
  * @nx/webpack nests webpack 5.107+, which breaks @module-federation/enhanced.
- * Junction nested webpack to the workspace root copy (5.105.0).
+ * Link nested webpack to the workspace root copy (5.105.0).
  */
 const fs = require('fs');
 const path = require('path');
@@ -33,6 +33,12 @@ if (fs.existsSync(nestedWebpack)) {
 }
 
 fs.mkdirSync(nestedDir, { recursive: true });
-execSync(`cmd /c mklink /J "${nestedWebpack}" "${rootWebpack}"`, {
-  stdio: 'inherit',
-});
+
+if (process.platform === 'win32') {
+  execSync(`cmd /c mklink /J "${nestedWebpack}" "${rootWebpack}"`, {
+    stdio: 'inherit',
+  });
+} else {
+  const relativeTarget = path.relative(nestedDir, rootWebpack);
+  fs.symlinkSync(relativeTarget, nestedWebpack, 'dir');
+}
