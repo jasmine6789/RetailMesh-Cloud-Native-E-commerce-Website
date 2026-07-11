@@ -23,6 +23,10 @@ Copy-Item .env.example .env
 
 docker compose up -d --build
 
+# Seed category-matched product images into LocalStack (monitors/mice/laptops — not random stock photos)
+.\scripts\seed-localstack-product-images.ps1 -Force
+# Use -Force again after docker compose down -v / LocalStack reset if images look wrong
+
 # Basic smoke checks
 curl -s http://localhost:8010/ >/dev/null
 curl -s http://localhost:8010/health >/dev/null
@@ -42,6 +46,9 @@ cd RetailMesh-Cloud-Native-E-commerce-Website
 
 cp .env.example .env
 docker compose up -d --build
+
+# Seed product images into LocalStack S3 (category-matched; never random picsum)
+pwsh ./scripts/seed-localstack-product-images.ps1 -Force
 
 curl -s http://localhost:8010/health >/dev/null
 curl -s http://localhost:8010/Catalog/GetAllProducts >/dev/null
@@ -78,6 +85,12 @@ Open these in your browser:
 - Grafana: `http://localhost:3000` (login: `admin` / `admin1234`)
 - Jaeger UI: `http://localhost:16686`
 - Kibana: `http://localhost:5601`
+
+Provisioned Grafana dashboards (after the stack is up) show live ASP.NET metrics for Catalog, Basket, Ordering, and the gateway:
+
+![Grafana — service request metrics](docs/images/grafana-service-request-metrics.png)
+
+![Grafana — API activity by service](docs/images/grafana-api-activity.png)
 
 Quick metric checks (run on the host):
 

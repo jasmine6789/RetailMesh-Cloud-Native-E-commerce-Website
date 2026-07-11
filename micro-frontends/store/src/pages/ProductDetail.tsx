@@ -117,6 +117,7 @@ function ProductDetail(props: ProductDetailProps) {
           <ProductImageGallery
             images={[getProductImageUrl(product)]}
             productName={product.name}
+            typeName={product.types?.name}
           />
         </Col>
 

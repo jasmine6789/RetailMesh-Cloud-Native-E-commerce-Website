@@ -1,452 +1,472 @@
 {
-  "dashboard": {
-    "id": null,
-    "title": "E-Commerce Business Metrics",
-    "tags": ["ecommerce", "business", "kpi", "revenue"],
-    "timezone": "browser",
-    "panels": [
-      {
-        "id": 1,
-        "title": "Revenue Overview",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "sum(revenue_total)",
-            "legendFormat": "Total Revenue"
-          },
-          {
-            "expr": "sum(rate(revenue_total[1h]))",
-            "legendFormat": "Revenue/hour"
-          },
-          {
-            "expr": "sum(rate(revenue_total[1d]))",
-            "legendFormat": "Revenue/day"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 1000},
-                {"color": "red", "value": 10000}
-              ]
-            },
-            "unit": "currencyUSD"
-          }
-        },
-        "gridPos": {"h": 8, "w": 16, "x": 0, "y": 0}
+  "uid": "afrozm8ocqcxsd",
+  "title": "E-Commerce API Activity",
+  "tags": [
+                 "ecommerce",
+    "api",
+    "activity",
+    "docker"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Total API RPS",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
       },
-      {
-        "id": 2,
-        "title": "Order Metrics",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "sum(orders_total)",
-            "legendFormat": "Total Orders"
-          },
-          {
-            "expr": "sum(rate(orders_created_total[5m]))",
-            "legendFormat": "Orders/min"
-          },
-          {
-            "expr": "sum(rate(orders_completed_total[5m]))",
-            "legendFormat": "Completed/min"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 10},
-                {"color": "red", "value": 100}
-              ]
-            },
-            "unit": "orders"
-          }
-        },
-        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0}
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
       },
-      {
-        "id": 3,
-        "title": "Order Value Trends",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "avg(order_value)",
-            "legendFormat": "Average Order Value"
-          },
-          {
-            "expr": "histogram_quantile(0.95, order_value_bucket)",
-            "legendFormat": "P95 Order Value"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 100},
-                {"color": "red", "value": 1000}
-              ]
-            },
-            "unit": "currencyUSD"
-          }
-        },
-        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
-      },
-      {
-        "id": 4,
-        "title": "Product Performance",
-        "type": "table",
-        "targets": [
-          {
-            "expr": "sum(product_views) by (product_id, product_name)",
-            "legendFormat": "{{product_name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": null},
-                {"color": "red", "value": null}
-              ]
-            },
-            "unit": "views"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Value"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 150
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
-      },
-      {
-        "id": 5,
-        "title": "Cart & Checkout Funnel",
-        "type": "barchart",
-        "targets": [
-          {
-            "expr": "sum(cart_additions)",
-            "legendFormat": "Cart Additions"
-          },
-          {
-            "expr": "sum(cart_checkouts)",
-            "legendFormat": "Checkouts"
-          },
-          {
-            "expr": "sum(orders_created)",
-            "legendFormat": "Orders Created"
-          },
-          {
-            "expr": "sum(orders_completed)",
-            "legendFormat": "Orders Completed"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": null},
-                {"color": "red", "value": null}
-              ]
-            },
-            "unit": "short"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
-      },
-      {
-        "id": 6,
-        "title": "Conversion Rates",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "sum(orders_created) / sum(cart_additions) * 100",
-            "legendFormat": "Cart to Order %"
-          },
-          {
-            "expr": "sum(orders_completed) / sum(orders_created) * 100",
-            "legendFormat": "Order Completion %"
-          },
-          {
-            "expr": "sum(product_purchases) / sum(product_views) * 100",
-            "legendFormat": "Product Purchase %"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": 0},
-                {"color": "yellow", "value": 1},
-                {"color": "red", "value": 5}
-              ]
-            },
-            "unit": "percent"
-          }
-        },
-        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 24}
-      },
-      {
-        "id": 7,
-        "title": "User Engagement",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "sum(active_users)",
-            "legendFormat": "Active Users"
-          },
-          {
-            "expr": "avg(session_duration)",
-            "legendFormat": "Avg Session Duration"
-          },
-          {
-            "expr": "sum(page_views)",
-            "legendFormat": "Page Views"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 100},
-                {"color": "red", "value": 1000}
-              ]
-            },
-            "unit": "short"
-          }
-        },
-        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 24}
-      },
-      {
-        "id": 8,
-        "title": "Search Analytics",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(search_queries)",
-            "legendFormat": "Search Queries"
-          },
-          {
-            "expr": "sum(search_results)",
-            "legendFormat": "Search Results"
-          },
-          {
-            "expr": "sum(search_clicks)",
-            "legendFormat": "Search Clicks"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": null},
-                {"color": "red", "value": null}
-              ]
-            },
-            "unit": "short"
-          }
-        },
-        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 24}
-      },
-      {
-        "id": 9,
-        "title": "Revenue by Category",
-        "type": "piechart",
-        "targets": [
-          {
-            "expr": "sum(revenue) by (category)",
-            "legendFormat": "{{category}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": null},
-                {"color": "red", "value": null}
-              ]
-            },
-            "unit": "currencyUSD"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32}
-      },
-      {
-        "id": 10,
-        "title": "Top Products by Revenue",
-        "type": "table",
-        "targets": [
-          {
-            "expr": "sum(product_revenue) by (product_id, product_name)",
-            "legendFormat": "{{product_name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 1000},
-                {"color": "red", "value": 10000}
-              ]
-            },
-            "unit": "currencyUSD"
-          },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Value"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 150
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
-      },
-      {
-        "id": 11,
-        "title": "Hourly Sales Pattern",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(orders_created_total[1h])) by (hour)",
-            "legendFormat": "Orders by Hour"
-          },
-          {
-            "expr": "sum(rate(revenue_total[1h])) by (hour)",
-            "legendFormat": "Revenue by Hour",
-            "yAxis": 2
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": null},
-                {"color": "red", "value": null}
-              ]
-            }
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40}
-      },
-      {
-        "id": 12,
-        "title": "Customer Satisfaction",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "avg(customer_satisfaction_score)",
-            "legendFormat": "Satisfaction Score"
-          },
-          {
-            "expr": "sum(customer_reviews)",
-            "legendFormat": "Total Reviews"
-          },
-          {
-            "expr": "avg(customer_rating)",
-            "legendFormat": "Average Rating"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "red", "value": 0},
-                {"color": "yellow", "value": 3},
-                {"color": "green", "value": 4}
-              ]
-            },
-            "unit": "short"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40}
-      }
-    ],
-    "time": {
-      "from": "now-24h",
-      "to": "now"
-    },
-    "refresh": "30s",
-    "templating": {
-      "list": [
+      "targets": [
         {
-          "name": "timeRange",
-          "type": "custom",
-          "query": "1h, 6h, 24h, 7d, 30d",
-          "current": {
-            "selected": false,
-            "text": "24h",
-            "value": "24h"
-          }
-        },
-        {
-          "name": "category",
-          "type": "query",
-          "query": "label_values(category)",
-          "refresh": 1,
-          "includeAll": true,
-          "allValue": ".*",
-          "regex": "",
-          "multi": true,
-          "current": {
-            "selected": false,
-            "text": "All",
-            "value": "$__all"
+          "expr": "sum(rate(http_server_request_duration_seconds_count[5m]))",
+          "legendFormat": "RPS",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
           }
         }
-      ]
-    },
-    "links": [
-      {
-        "title": "Service Metrics Dashboard",
-        "url": "/d/ecommerce-service-metrics",
-        "target": "_blank"
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "blue",
+                "value": 20
+              }
+            ]
+          }
+        }
       },
-      {
-        "title": "Performance Dashboard",
-        "url": "/d/performance-overview",
-        "target": "_blank"
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
       }
-    ]
-  }
+    },
+    {
+      "id": 2,
+      "title": "Catalog RPS",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"catalog-api\"}[5m]))",
+          "legendFormat": "Catalog",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Basket RPS",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"basket-api\"}[5m]))",
+          "legendFormat": "Basket",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Ordering RPS",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"ordering-api\"}[5m]))",
+          "legendFormat": "Ordering",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Request Rate by Service",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count[5m])) by (job)",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Gateway Request Rate",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"ocelot-api-gateway\"}[5m]))",
+          "legendFormat": "Gateway",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Success vs 4xx vs 5xx Mix",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"2..\"}[5m]))",
+          "legendFormat": "2xx",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        },
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"4..\"}[5m]))",
+          "legendFormat": "4xx",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        },
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"5..\"}[5m]))",
+          "legendFormat": "5xx",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Active Kestrel Connections",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(kestrel_active_connections) by (job)",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Top Catalog Routes (browse activity)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "topk(8, sum(rate(http_server_request_duration_seconds_count{job=\"catalog-api\",http_route!=\"\",http_route!=\"/metrics\"}[5m])) by (http_route))",
+          "legendFormat": "{{http_route}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Top Basket Routes (cart activity)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "topk(8, sum(rate(http_server_request_duration_seconds_count{job=\"basket-api\",http_route!=\"\",http_route!=\"/metrics\"}[5m])) by (http_route))",
+          "legendFormat": "{{http_route}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "Ordering Routes",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "topk(8, sum(rate(http_server_request_duration_seconds_count{job=\"ordering-api\",http_route!=\"\",http_route!=\"/metrics\"}[5m])) by (http_route))",
+          "legendFormat": "{{http_route}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Request Methods Mix",
+      "type": "piechart",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 29
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count[5m])) by (http_request_method)",
+          "legendFormat": "{{http_request_method}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    }
+  ],
+  "id": null
 }

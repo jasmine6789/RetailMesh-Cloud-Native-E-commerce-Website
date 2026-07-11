@@ -1,457 +1,503 @@
 {
-  "dashboard": {
-    "id": null,
-    "title": "E-Commerce Service Request Metrics (Istio)",
-    "tags": ["ecommerce", "service-metrics", "api", "microservices", "istio"],
-    "timezone": "browser",
-    "panels": [
-      {
-        "id": 1,
-        "title": "Total Request Volume",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "sum(rate(istio_requests_total{reporter=\"destination\"}[5m]))",
-            "legendFormat": "Total Requests"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 100},
-                {"color": "red", "value": 1000}
-              ]
-            },
-            "unit": "reqps"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+  "uid": "cfrozpgpnfe2oa",
+  "title": "E-Commerce Service Request Metrics",
+  "tags": [
+    "ecommerce",
+    "service-metrics",
+    "api",
+    "microservices",
+    "docker"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Total Request Volume",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 0
       },
-      {
-        "id": 2,
-        "title": "Service Request Distribution",
-        "type": "piechart",
-        "targets": [
-          {
-            "expr": "sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (destination_service_name)",
-            "legendFormat": "{{destination_service_name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": null},
-                {"color": "red", "value": null}
-              ]
-            }
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
       },
-      {
-        "id": 3,
-        "title": "Response Time Trends (P50, P95, P99)",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.50, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (le, destination_service_name))",
-            "legendFormat": "P50 - {{destination_service_name}}"
-          },
-          {
-            "expr": "histogram_quantile(0.95, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (le, destination_service_name))",
-            "legendFormat": "P95 - {{destination_service_name}}"
-          },
-          {
-            "expr": "histogram_quantile(0.99, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (le, destination_service_name))",
-            "legendFormat": "P99 - {{destination_service_name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 500},
-                {"color": "red", "value": 2000}
-              ]
-            },
-            "unit": "ms"
-          }
-        },
-        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
-      },
-      {
-        "id": 4,
-        "title": "Error Rate by Service (%)",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\",response_code=~\"4..\"}[5m])) by (destination_service_name) / sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (destination_service_name) * 100",
-            "legendFormat": "4xx Errors - {{destination_service_name}}"
-          },
-          {
-            "expr": "sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\",response_code=~\"5..\"}[5m])) by (destination_service_name) / sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (destination_service_name) * 100",
-            "legendFormat": "5xx Errors - {{destination_service_name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 1},
-                {"color": "red", "value": 5}
-              ]
-            },
-            "unit": "percent"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
-      },
-      {
-        "id": 5,
-        "title": "Request Throughput (RPS)",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (destination_service_name)",
-            "legendFormat": "{{destination_service_name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 50},
-                {"color": "red", "value": 200}
-              ]
-            },
-            "unit": "reqps"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
-      },
-      {
-        "id": 6,
-        "title": "API Gateway P95 Latency",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.95, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"destination\",destination_service_name=~\".*gateway.*|.*ocelot.*\"}[5m])) by (le))",
-            "legendFormat": "P95 Latency"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 1000},
-                {"color": "red", "value": 3000}
-              ]
-            },
-            "unit": "ms"
-          }
-        },
-        "gridPos": {"h": 6, "w": 8, "x": 0, "y": 24}
-      },
-      {
-        "id": 7,
-        "title": "Request Success Rate",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\",response_code!~\"5..\"}[5m])) / sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) * 100",
-            "legendFormat": "Success Rate %"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "red", "value": 0},
-                {"color": "yellow", "value": 95},
-                {"color": "green", "value": 99}
-              ]
-            },
-            "unit": "percent"
-          }
-        },
-        "gridPos": {"h": 6, "w": 8, "x": 8, "y": 24}
-      },
-      {
-        "id": 8,
-        "title": "Total Requests (5m)",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "sum(increase(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m]))",
-            "legendFormat": "Total Requests"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 1000},
-                {"color": "red", "value": 10000}
-              ]
-            },
-            "unit": "short"
-          }
-        },
-        "gridPos": {"h": 6, "w": 8, "x": 16, "y": 24}
-      },
-      {
-        "id": 9,
-        "title": "Response Codes by Service",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (destination_service_name, response_code)",
-            "legendFormat": "{{destination_service_name}} - {{response_code}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null}
-              ]
-            },
-            "unit": "reqps"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 30}
-      },
-      {
-        "id": 10,
-        "title": "Request Size (bytes)",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(istio_request_bytes_sum{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (destination_service_name) / sum(rate(istio_request_bytes_count{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (destination_service_name)",
-            "legendFormat": "{{destination_service_name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 10000},
-                {"color": "red", "value": 100000}
-              ]
-            },
-            "unit": "bytes"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 30}
-      },
-      {
-        "id": 11,
-        "title": "Top Services by Request Count",
-        "type": "table",
-        "targets": [
-          {
-            "expr": "topk(10, sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (destination_service_name))",
-            "legendFormat": "{{destination_service_name}}",
-            "format": "table",
-            "instant": true
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null}
-              ]
-            },
-            "unit": "reqps"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 38}
-      },
-      {
-        "id": 12,
-        "title": "Slowest Services (P95 Latency)",
-        "type": "table",
-        "targets": [
-          {
-            "expr": "topk(10, histogram_quantile(0.95, sum(rate(istio_request_duration_milliseconds_bucket{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (le, destination_service_name)))",
-            "legendFormat": "{{destination_service_name}}",
-            "format": "table",
-            "instant": true
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 1000},
-                {"color": "red", "value": 3000}
-              ]
-            },
-            "unit": "ms"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 38}
-      },
-      {
-        "id": 13,
-        "title": "Service Traffic Heatmap",
-        "type": "heatmap",
-        "targets": [
-          {
-            "expr": "sum(rate(istio_requests_total{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (destination_service_name)",
-            "legendFormat": "{{destination_service_name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 10},
-                {"color": "red", "value": 50}
-              ]
-            },
-            "unit": "reqps"
-          }
-        },
-        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 46}
-      },
-      {
-        "id": 14,
-        "title": "Connection Duration",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.95, sum(rate(istio_tcp_connection_duration_milliseconds_bucket{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m])) by (le, destination_service_name))",
-            "legendFormat": "P95 - {{destination_service_name}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 5000},
-                {"color": "red", "value": 10000}
-              ]
-            },
-            "unit": "ms"
-          }
-        },
-        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 54}
-      },
-      {
-        "id": 15,
-        "title": "Inbound vs Outbound Traffic",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(istio_request_bytes_sum{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m]))",
-            "legendFormat": "Inbound (Request)"
-          },
-          {
-            "expr": "sum(rate(istio_response_bytes_sum{reporter=\"destination\",destination_service_namespace=\"dev\"}[5m]))",
-            "legendFormat": "Outbound (Response)"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null}
-              ]
-            },
-            "unit": "Bps"
-          }
-        },
-        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 54}
-      }
-    ],
-    "time": {
-      "from": "now-1h",
-      "to": "now"
-    },
-    "refresh": "30s",
-    "templating": {
-      "list": [
+      "targets": [
         {
-          "name": "service",
-          "type": "query",
-          "query": "label_values(istio_requests_total{destination_service_namespace=\"dev\"}, destination_service_name)",
-          "refresh": 1,
-          "includeAll": true,
-          "allValue": ".*",
-          "regex": "",
-          "multi": true,
-          "current": {
-            "selected": false,
-            "text": "All",
-            "value": "$__all"
-          }
-        },
-        {
-          "name": "timeRange",
-          "type": "custom",
-          "query": "5m,15m,1h,6h,24h,7d",
-          "current": {
-            "selected": false,
-            "text": "5m",
-            "value": "5m"
+          "expr": "sum(rate(http_server_request_duration_seconds_count[5m]))",
+          "legendFormat": "Total RPS",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
           }
         }
-      ]
-    },
-    "annotations": {
-      "list": [
-        {
-          "builtIn": 1,
-          "datasource": "-- Grafana --",
-          "enable": true,
-          "hide": true,
-          "iconColor": "rgba(0, 211, 255, 1)",
-          "name": "Annotations & Alerts",
-          "type": "dashboard"
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          }
         }
-      ]
-    },
-    "links": [
-      {
-        "title": "Istio Service Mesh",
-        "url": "/d/istio-mesh",
-        "target": "_blank"
       },
-      {
-        "title": "Istio Performance",
-        "url": "/d/istio-performance",
-        "target": "_blank"
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
       }
-    ]
-  }
+    },
+    {
+      "id": 2,
+      "title": "Active HTTP Requests",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(http_server_active_requests)",
+          "legendFormat": "Active",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 20
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Gateway P95 Latency",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket{job=\"ocelot-api-gateway\"}[5m])) by (le))",
+          "legendFormat": "P95",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Request Rate by Service",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count[5m])) by (job)",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Service Request Distribution",
+      "type": "piechart",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count[5m])) by (job)",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Latency P50 / P95 / P99 by Service",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le, job))",
+          "legendFormat": "P50 {{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le, job))",
+          "legendFormat": "P95 {{job}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le, job))",
+          "legendFormat": "P99 {{job}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Error Rate by Service (%)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "100 * sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"5..\"}[5m])) by (job) / clamp_min(sum(rate(http_server_request_duration_seconds_count[5m])) by (job), 1e-9)",
+          "legendFormat": "5xx {{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        },
+        {
+          "expr": "100 * sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"4..\"}[5m])) by (job) / clamp_min(sum(rate(http_server_request_duration_seconds_count[5m])) by (job), 1e-9)",
+          "legendFormat": "4xx {{job}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Request Success Rate",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "100 * sum(rate(http_server_request_duration_seconds_count{http_response_status_code!~\"5..\"}[5m])) / clamp_min(sum(rate(http_server_request_duration_seconds_count[5m])), 1e-9)",
+          "legendFormat": "Success",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Responses by Status Code",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count[5m])) by (job, http_response_status_code)",
+          "legendFormat": "{{job}} {{http_response_status_code}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Top Routes by Request Rate",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 28
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum(rate(http_server_request_duration_seconds_count{http_route!=\"\"}[5m])) by (job, http_route))",
+          "legendFormat": "{{job}} {{http_route}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "Slowest Services (P99 Latency)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "topk(10, histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le, job)))",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
+    }
+  ],
+  "id": null
 }

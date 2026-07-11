@@ -63,6 +63,8 @@ function ProductCard(props: ProductCardProps) {
         <ProductCardCover
           imageUrl={imageUrl}
           imageAlt={product.name}
+          typeName={product.types?.name}
+          productName={product.name}
           isHovered={isHovered}
           onViewDetails={handleViewDetails}
           badge={badge}
