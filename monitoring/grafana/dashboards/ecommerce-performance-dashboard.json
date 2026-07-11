@@ -1,367 +1,538 @@
 {
-  "dashboard": {
-    "id": null,
-    "title": "E-Commerce Performance Dashboard",
-    "tags": ["performance", "infrastructure", "database", "cache"],
-    "timezone": "browser",
-    "panels": [
-      {
-        "id": 1,
-        "title": "System Overview",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "sum(rate(container_cpu_usage_seconds_total[5m]))",
-            "legendFormat": "Total CPU Usage"
-          },
-          {
-            "expr": "sum(container_memory_usage_bytes) / 1024 / 1024 / 1024",
-            "legendFormat": "Total Memory Usage (GB)"
-          },
-          {
-            "expr": "sum(rate(http_requests_total[5m]))",
-            "legendFormat": "Total RPS"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 70},
-                {"color": "red", "value": 90}
-              ]
-            },
-            "unit": "percent"
-          }
-        },
-        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0}
+  "uid": "ffrozm8qanim8b",
+  "title": "E-Commerce Performance Dashboard",
+  "tags": [
+    "ecommerce",
+    "performance",
+    "infrastructure",
+    "docker"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Process CPU (cores)",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 0
       },
-      {
-        "id": 2,
-        "title": "Database Performance",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m]))",
-            "legendFormat": "P95 Query Duration"
-          },
-          {
-            "expr": "sum(rate(database_queries_total[5m]))",
-            "legendFormat": "Queries per Second"
-          },
-          {
-            "expr": "sum(rate(database_errors_total[5m]))",
-            "legendFormat": "Errors per Second"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 0.1},
-                {"color": "red", "value": 1}
-              ]
-            },
-            "unit": "s"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
       },
-      {
-        "id": 3,
-        "title": "Cache Performance",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(cache_hits_total[5m])) / sum(rate(cache_requests_total[5m])) * 100",
-            "legendFormat": "Cache Hit Rate %"
-          },
-          {
-            "expr": "sum(rate(cache_misses_total[5m]))",
-            "legendFormat": "Cache Misses per Second"
-          },
-          {
-            "expr": "histogram_quantile(0.95, rate(cache_response_time_seconds_bucket[5m]))",
-            "legendFormat": "P95 Response Time"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "red", "value": 50},
-                {"color": "yellow", "value": 80},
-                {"color": "green", "value": 95}
-              ]
-            },
-            "unit": "percent"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
-      },
-      {
-        "id": 4,
-        "title": "Message Queue Performance",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(message_queue_depth)",
-            "legendFormat": "Queue Depth"
-          },
-          {
-            "expr": "sum(rate(messages_processed_total[5m]))",
-            "legendFormat": "Messages Processed per Second"
-          },
-          {
-            "expr": "sum(rate(messages_failed_total[5m]))",
-            "legendFormat": "Messages Failed per Second"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 100},
-                {"color": "red", "value": 1000}
-              ]
-            },
-            "unit": "short"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
-      },
-      {
-        "id": 5,
-        "title": "API Gateway Latency",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
-            "legendFormat": "P50 Latency"
-          },
-          {
-            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
-            "legendFormat": "P95 Latency"
-          },
-          {
-            "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
-            "legendFormat": "P99 Latency"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 0.5},
-                {"color": "red", "value": 2}
-              ]
-            },
-            "unit": "s"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
-      },
-      {
-        "id": 6,
-        "title": "Service Resource Usage",
-        "type": "barchart",
-        "targets": [
-          {
-            "expr": "avg(rate(container_cpu_usage_seconds_total[5m])) by (service) * 100",
-            "legendFormat": "CPU Usage - {{service}}"
-          },
-          {
-            "expr": "avg(container_memory_usage_bytes{container!=\"\"}) by (service) / 1024 / 1024 / 1024",
-            "legendFormat": "Memory Usage - {{service}}GB",
-            "yAxis": 2
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 70},
-                {"color": "red", "value": 90}
-              ]
-            },
-            "unit": "percent"
-          }
-        },
-        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24}
-      },
-      {
-        "id": 7,
-        "title": "Error Rates by Service",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service) * 100",
-            "legendFormat": "5xx Errors - {{service}}"
-          },
-          {
-            "expr": "sum(rate(http_requests_total{status=~\"4..\"}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service) * 100",
-            "legendFormat": "4xx Errors - {{service}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 1},
-                {"color": "red", "value": 5}
-              ]
-            },
-            "unit": "percent"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32}
-      },
-      {
-        "id": 8,
-        "title": "Network Throughput",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(container_network_receive_bytes_total[5m])) by (service)",
-            "legendFormat": "Network In - {{service}}"
-          },
-          {
-            "expr": "sum(rate(container_network_transmit_bytes_total[5m])) by (service)",
-            "legendFormat": "Network Out - {{service}}"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": null},
-                {"color": "red", "value": null}
-              ]
-            },
-            "unit": "Bps"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
-      },
-      {
-        "id": 9,
-        "title": "Disk I/O Performance",
-        "type": "timeseries",
-        "targets": [
-          {
-            "expr": "sum(rate(container_fs_reads_bytes_total[5m]))",
-            "legendFormat": "Disk Read Bytes/s"
-          },
-          {
-            "expr": "sum(rate(container_fs_writes_bytes_total[5m]))",
-            "legendFormat": "Disk Write Bytes/s"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": null},
-                {"color": "red", "value": null}
-              ]
-            },
-            "unit": "Bps"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40}
-      },
-      {
-        "id": 10,
-        "title": "Service Health Status",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "sum(up) by (service)",
-            "legendFormat": "{{service}} - Up"
-          },
-          {
-            "expr": "count(up) by (service) - sum(up) by (service)",
-            "legendFormat": "{{service}} - Down"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "mappings": [],
-            "thresholds": {
-              "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": null},
-                {"color": "red", "value": null}
-              ]
-            },
-            "unit": "short"
-          }
-        },
-        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40}
-      }
-    ],
-    "time": {
-      "from": "now-1h",
-      "to": "now"
-    },
-    "refresh": "30s",
-    "templating": {
-      "list": [
+      "targets": [
         {
-          "name": "service",
-          "type": "query",
-          "query": "label_values(service)",
-          "refresh": 1,
-          "includeAll": true,
-          "allValue": ".*",
-          "regex": "",
-          "multi": true,
-          "current": {
-            "selected": false,
-            "text": "All",
-            "value": "$__all"
-          }
-        },
-        {
-          "name": "timeRange",
-          "type": "custom",
-          "query": "1h, 6h, 24h, 7d, 30d",
-          "current": {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
+          "expr": "sum(rate(process_cpu_seconds_total[5m]))",
+          "legendFormat": "CPU",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
           }
         }
-      ]
-    },
-    "links": [
-      {
-        "title": "Service Metrics Dashboard",
-        "url": "/d/ecommerce-service-metrics",
-        "target": "_blank"
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
       },
-      {
-        "title": "Business Metrics Dashboard",
-        "url": "/d/ecommerce-business-metrics",
-        "target": "_blank"
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
       }
-    ]
-  }
+    },
+    {
+      "id": 2,
+      "title": "Total Resident Memory",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(process_resident_memory_bytes)",
+          "legendFormat": "RSS",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500000000
+              },
+              {
+                "color": "red",
+                "value": 1000000000
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Total Request Rate",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count[5m]))",
+          "legendFormat": "RPS",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "CPU by Service",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total[5m])",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 3
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Memory by Service (RSS)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Kestrel Active Connections",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(kestrel_active_connections) by (job)",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Kestrel Queued Connections",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "sum(kestrel_queued_connections) by (job)",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "HTTP Latency P50 / P95 / P99",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "P50",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "P95",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "P99",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Error Rate by Service (%)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "100 * sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"5..\"}[5m])) by (job) / clamp_min(sum(rate(http_server_request_duration_seconds_count[5m])) by (job), 1e-9)",
+          "legendFormat": "5xx {{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        },
+        {
+          "expr": "100 * sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"4..\"}[5m])) by (job) / clamp_min(sum(rate(http_server_request_duration_seconds_count[5m])) by (job), 1e-9)",
+          "legendFormat": "4xx {{job}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Service Health (up)",
+      "type": "stat",
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "up{job=~\"catalog-api|basket-api|ordering-api|ocelot-api-gateway|prometheus\"}",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "id": 11,
+      "title": "Open File Descriptors",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 35
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "process_open_fds",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Virtual Memory by Service",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "targets": [
+        {
+          "expr": "process_virtual_memory_bytes",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      }
+    }
+  ],
+  "id": null
 }

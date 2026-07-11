@@ -3,6 +3,7 @@ import { Button, Flex } from 'antd';
 import { ShoppingOutlined, EyeOutlined } from '@ant-design/icons';
 import ProductBadge from './ProductBadge';
 import { DEFAULT_PRODUCT_IMAGE } from '../../constants/productImages';
+import { getFallbackImageByCategory } from '../../helpers/productImageResolver';
 import {
   PRODUCT_CARD,
   PRODUCT_CARD_COLORS,
@@ -11,6 +12,8 @@ import {
 type ProductCardCoverProps = {
   imageUrl?: string;
   imageAlt?: string;
+  typeName?: string;
+  productName?: string;
   isHovered: boolean;
   onViewDetails: () => void;
   badge?: {
@@ -20,22 +23,41 @@ type ProductCardCoverProps = {
 };
 
 function ProductCardCover(props: ProductCardCoverProps) {
-  const { imageUrl, imageAlt, isHovered, onViewDetails, badge } = props;
+  const {
+    imageUrl,
+    imageAlt,
+    typeName,
+    productName,
+    isHovered,
+    onViewDetails,
+    badge,
+  } = props;
+  const categoryFallback = getFallbackImageByCategory(typeName, productName);
   const [displayUrl, setDisplayUrl] = useState(
-    imageUrl || DEFAULT_PRODUCT_IMAGE
+    imageUrl || categoryFallback || DEFAULT_PRODUCT_IMAGE
   );
+  const [retriedLocalhost, setRetriedLocalhost] = useState(false);
 
   useEffect(() => {
-    setDisplayUrl(imageUrl || DEFAULT_PRODUCT_IMAGE);
-  }, [imageUrl]);
+    setDisplayUrl(imageUrl || categoryFallback || DEFAULT_PRODUCT_IMAGE);
+    setRetriedLocalhost(false);
+  }, [imageUrl, categoryFallback]);
 
   function handleImageError() {
     const current = displayUrl;
-    if (current.includes('localhost:4566')) {
-      setDisplayUrl(current.replace('localhost:4566', '127.0.0.1:4566'));
+    if (!retriedLocalhost && current.includes('localhost:4566')) {
+      setRetriedLocalhost(true);
+      setDisplayUrl(current.replace(/localhost:4566/gi, '127.0.0.1:4566'));
       return;
     }
-    setDisplayUrl(DEFAULT_PRODUCT_IMAGE);
+    // Prefer category-aware fallback so every failed load is not the same headphones image
+    if (current !== categoryFallback) {
+      setDisplayUrl(categoryFallback);
+      return;
+    }
+    if (current !== DEFAULT_PRODUCT_IMAGE) {
+      setDisplayUrl(DEFAULT_PRODUCT_IMAGE);
+    }
   }
 
   function handleViewDetailsClick(e: React.MouseEvent) {

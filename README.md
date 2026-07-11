@@ -105,8 +105,9 @@ sequenceDiagram
 |------|--------|
 | 1 | Clone the repo and copy environment file |
 | 2 | Start backend with Docker Compose |
-| 3 | Start the Nx host and micro-frontends |
-| 4 | Sign in or register at `/login` or `/register` |
+| 3 | Seed product images into LocalStack S3 |
+| 4 | Start the Nx host and micro-frontends |
+| 5 | Sign in or register at `/login` or `/register` |
 
 ```bash
 git clone https://github.com/jasmine6789/RetailMesh-Cloud-Native-E-commerce-Website.git
@@ -114,6 +115,10 @@ cd RetailMesh-Cloud-Native-E-commerce-Website
 cp .env.example .env
 
 docker compose up -d --build
+
+# Required: seed LocalStack with category-matched product photos (not random placeholders)
+./scripts/seed-localstack-product-images.ps1 -Force
+# Re-run with -Force after resetting LocalStack or if cards show wrong/random images
 
 cd micro-frontends
 npm run setup
@@ -155,6 +160,20 @@ Full checklist: [kubernetes/LOCAL-K8S.md](kubernetes/LOCAL-K8S.md).
 | Discount | 8002 |
 | Ordering | 8003 |
 | Identity | 8004 |
+
+## Observability
+
+Prometheus scrapes Catalog, Basket, Ordering, and the Ocelot gateway. Grafana is provisioned with dashboards for service request metrics and API activity (login: `admin` / `admin1234` at [http://localhost:3000](http://localhost:3000)).
+
+**Service request metrics** — request volume, gateway P95 latency, and traffic split across microservices:
+
+![Grafana — service request metrics across Catalog, Basket, Ordering, and Ocelot](docs/images/grafana-service-request-metrics.png)
+
+**API activity** — per-service RPS for Catalog, Basket, Ordering, and gateway traffic:
+
+![Grafana — API activity RPS by service](docs/images/grafana-api-activity.png)
+
+Jaeger (`http://localhost:16686`) and Prometheus (`http://localhost:9090`) are also included in the Docker Compose stack. See [LOCAL-DOCKER.md](LOCAL-DOCKER.md) for smoke checks and expected scrape targets.
 
 ## Authentication (Identity.API)
 

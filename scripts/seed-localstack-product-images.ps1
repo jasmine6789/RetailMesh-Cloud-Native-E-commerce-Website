@@ -1,7 +1,12 @@
 # Seeds LocalStack S3 with product images from assets/product-images (or downloads them first).
-# Usage: .\scripts\seed-localstack-product-images.ps1 [-Download]
+# Usage:
+#   .\scripts\seed-localstack-product-images.ps1 [-Download] [-Force]
+# -Force re-downloads category-matched images (replaces bad picsum placeholders) and re-uploads.
 
-param([switch]$Download)
+param(
+    [switch]$Download,
+    [switch]$Force
+)
 
 $ErrorActionPreference = 'Stop'
 $Bucket = 'ecommerce-product-images'
@@ -20,9 +25,13 @@ $filenames = Select-String -Path $SeedJson -Pattern 'products/([^"]+\.(?:png|jpe
     Sort-Object -Unique
 
 $missing = @($filenames | Where-Object { -not (Test-Path (Join-Path $ImagesDir $_)) })
-if ($Download -or $missing.Count -gt 0) {
-    Write-Host "Ensuring local images exist ($($missing.Count) missing)..."
-    & $DownloadScript
+if ($Force -or $Download -or $missing.Count -gt 0) {
+    Write-Host "Ensuring local images exist (missing=$($missing.Count), Force=$Force)..."
+    if ($Force) {
+        & $DownloadScript -Force
+    } else {
+        & $DownloadScript
+    }
 }
 
 Write-Host "Found $($filenames.Count) catalog image filenames"
@@ -43,7 +52,7 @@ if (-not $ready) {
     throw "LocalStack S3 is not ready at $Endpoint"
 }
 
-Write-Host "Creating bucket and uploading real product images..."
+Write-Host "Creating bucket and uploading category-matched product images..."
 docker exec localstack awslocal s3 mb "s3://$Bucket" 2>$null | Out-Null
 
 $policy = @"
@@ -65,10 +74,11 @@ $uploaded = 0
 foreach ($name in $filenames) {
     $localPath = Join-Path $ImagesDir $name
     if (-not (Test-Path $localPath)) {
-        throw "Missing image file: $localPath (run download-product-images.ps1)"
+        throw "Missing image file: $localPath (run download-product-images.ps1 -Force)"
     }
     docker cp $localPath "localstack:/tmp/$name"
-    docker exec localstack awslocal s3 cp "/tmp/$name" "s3://$Bucket/products/$name" --content-type image/png 2>$null | Out-Null
+    # Unsplash downloads are typically JPEG; browsers still render them with .png keys
+    docker exec localstack awslocal s3 cp "/tmp/$name" "s3://$Bucket/products/$name" --content-type image/jpeg 2>$null | Out-Null
     docker exec localstack rm -f "/tmp/$name" 2>$null | Out-Null
     $uploaded++
     if ($uploaded % 10 -eq 0) {
@@ -76,7 +86,7 @@ foreach ($name in $filenames) {
     }
 }
 
-Write-Host "Uploaded $uploaded distinct product images."
+Write-Host "Uploaded $uploaded product images."
 $sample = $filenames[0]
 $testUrl = "$Endpoint/$Bucket/products/$sample"
 try {
@@ -87,3 +97,4 @@ try {
 }
 
 Write-Host "Done. Product images: $Endpoint/$Bucket/products/<filename>"
+Write-Host "Hard-refresh the storefront (Ctrl+F5) to clear cached broken/random images."
