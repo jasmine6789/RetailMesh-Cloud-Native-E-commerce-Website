@@ -163,7 +163,7 @@ Full checklist: [kubernetes/LOCAL-K8S.md](kubernetes/LOCAL-K8S.md).
 
 ## Observability
 
-Prometheus scrapes Catalog, Basket, Ordering, and the Ocelot gateway. Grafana is provisioned with dashboards for service request metrics and API activity (login: `admin` / `admin1234` at [http://localhost:3000](http://localhost:3000)).
+Prometheus scrapes Catalog, Basket, Ordering, and the Ocelot gateway. Grafana is provisioned with dashboards for service request metrics and API activity ( [http://localhost:3000](http://localhost:3000)).
 
 **Service request metrics** — request volume, gateway P95 latency, and traffic split across microservices:
 
